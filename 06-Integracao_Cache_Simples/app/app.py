@@ -12,7 +12,7 @@ settings = get_settings()
 def create_app():
     app: Any = FastAPI(
         title="Estudo Python",
-        description="Integracao com DB SQL",
+        description="Cache - Redis",
         version="1.0.0",
         openapi_url="/openapi.json",
         docs_url="/docs",
