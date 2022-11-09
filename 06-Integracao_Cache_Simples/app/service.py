@@ -4,28 +4,19 @@ from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repository import *
 from fastapi_cache.decorator import cache
-from fastapi_cache import FastAPICache
 from fastapi_cache.coder import JsonCoder
+from app.config import key_all_users, key_user_by_id
 
 router = APIRouter()
-
-
-def my_key_builder(
-    func,
-    namespace: str | None = "",
-    request: Request = None,
-    response: Response = None,
-    *args,
-    **kwargs,
-):
-    prefix = FastAPICache.get_prefix()
-    cache_key = f"{prefix}:{namespace}:{func.__module__}:{func.__name__}:{args}:{kwargs}"
-    return cache_key
 
 
 @router.get("/",
             status_code=status.HTTP_200_OK,
             response_model=list[UserSchema])
+@cache(expire=60,
+       coder=JsonCoder,
+       key_builder=key_all_users,
+       namespace="GetAllUsers")
 async def get_users_default(db: AsyncSession = Depends(get_db)):
     return await get_all_users(db)
 
@@ -33,11 +24,13 @@ async def get_users_default(db: AsyncSession = Depends(get_db)):
 @router.get("/{id}")
 @cache(expire=60,
        coder=JsonCoder,
-       key_builder=my_key_builder,
-       namespace="teste")
-async def get_user_data(request: Request, response: Response):
-    id = request.path_params
-    user = await get_user_by_id(int(id.get('id')))
+       key_builder=key_user_by_id,
+       namespace="GetUsersById")
+async def get_user_data(id: int,
+                        request: Request,
+                        response: Response,
+                        db: AsyncSession = Depends(get_db)):
+    user = await get_user_by_id(db, id)
 
     if user:
         return user
