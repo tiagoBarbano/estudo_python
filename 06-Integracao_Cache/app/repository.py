@@ -22,14 +22,6 @@ async def get_user_by_id(db: AsyncSession, id: int) -> dict:
     await db.close()
     return user
 
-# async def get_user_by_id(id: int) -> dict:
-#     async with async_session() as session:
-#         query = select(UserModel).where(UserModel.id == id)
-#         users = await session.execute(query)
-#         user = users.scalar_one_or_none()
-#         await session.close()
-#         return user
-
 
 async def add_user(db: AsyncSession,
                    user_data: UserSchemaUpdate) -> UserSchema:

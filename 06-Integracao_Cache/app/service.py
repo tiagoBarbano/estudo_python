@@ -46,8 +46,7 @@ async def get_user_data(id: int,
        coder=JsonCoder,
        key_builder=key_add_user,
        namespace="AddUsers")
-async def new_user(user: UserSchemaUpdate,
-                   db: AsyncSession = Depends(get_db)):
+async def new_user(user: UserSchemaUpdate, db: AsyncSession = Depends(get_db)):
     try:
         return await add_user(db, user)
     except HTTPException:
