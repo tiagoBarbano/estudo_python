@@ -40,3 +40,16 @@ def key_all_users(
     prefix = FastAPICache.get_prefix()
     cache_key = f"{prefix}:{namespace}:{func.__module__}:{func.__name__}"
     return cache_key
+
+def key_add_user(
+    func,
+    namespace: str | None = "",
+    request: Request = None,
+    response: Response = None,
+    *args,
+    **kwargs,
+):
+    prefix = FastAPICache.get_prefix()
+    body = kwargs.get("kwargs")
+    cache_key = f"{prefix}:{namespace}:{func.__module__}:{func.__name__}:{body.get('user')}"
+    return cache_key

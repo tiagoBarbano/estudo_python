@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repository import *
 from fastapi_cache.decorator import cache
 from fastapi_cache.coder import JsonCoder
-from app.config import key_all_users, key_user_by_id
+from app.config import key_all_users, key_user_by_id, key_add_user
 
 router = APIRouter()
 
@@ -42,7 +42,11 @@ async def get_user_data(id: int,
 @router.post("/",
              status_code=status.HTTP_201_CREATED,
              response_model=UserSchema)
-async def new_user(user: UserSchemaUpdate = Body(...),
+@cache(expire=20,
+       coder=JsonCoder,
+       key_builder=key_add_user,
+       namespace="AddUsers")
+async def new_user(user: UserSchemaUpdate,
                    db: AsyncSession = Depends(get_db)):
     try:
         return await add_user(db, user)
