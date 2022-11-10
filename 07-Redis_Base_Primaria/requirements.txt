@@ -1,0 +1,7 @@
+fastapi[all]
+uvicorn
+gunicorn
+pydantic
+asyncpg
+sqlalchemy
+redis_om==0.0.27
