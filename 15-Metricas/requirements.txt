@@ -6,3 +6,4 @@ asyncpg
 sqlalchemy
 redis==4.3.3
 fastapi-cache2[redis]==0.1.8
+prometheus-fastapi-instrumentato==5.9.1
