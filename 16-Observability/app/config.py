@@ -8,6 +8,10 @@ from fastapi import Request, Response
 class Settings(BaseSettings):
     asyncpg_url: str
     redis_url: str
+    host_jaeger: str
+    port_jaeger: int
+    url_loki: str
+    app_name: str
 
     class Config:
         env_file = ".env"
@@ -58,8 +62,8 @@ def key_add_user(
     return cache_key
 
 handler = logging_loki.LokiHandler(
-    url="http://localhost:3100/loki/api/v1/push", 
-    tags={"application": "CRUD USERS"},
+    url=get_settings().url_loki, 
+    tags={"application": get_settings().app_name},
     version="1",
 )
 

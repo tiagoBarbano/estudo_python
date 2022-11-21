@@ -1,16 +1,16 @@
 version: '3.8'
 
 services:
-  nginx-app:
-    container_name: nginx-app
-    image: nginx
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
-    ports:
-      - 8080:80
-    networks:
-      - app
+  # nginx-app:
+  #   container_name: nginx-app
+  #   image: nginx
+  #   labels:
+  #     logging: "promtail"
+  #     logging_jobname: "containerlogs"
+  #   ports:
+  #     - 8080:80
+  #   networks:
+  #     - app
 
   grafana:
     image: grafana/grafana:latest
@@ -57,6 +57,16 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - app        
+
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one  
+    ports:
+      - "6831:6831/udp"      
+      - "16686:16686"
+      - "14268"
+      - "14250"
+    networks:
+      - app
 
 networks:
   app:

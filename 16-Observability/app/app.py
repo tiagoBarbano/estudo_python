@@ -6,6 +6,17 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from app.config import get_settings
 from prometheus_fastapi_instrumentator import Instrumentator
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry import trace
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
+#from opentelemetry.instrumentation.aio_pika import AioPikaInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from opentelemetry.instrumentation.redis import RedisInstrumentor
+from app.database import engine
 
 
 settings = get_settings()
@@ -20,6 +31,18 @@ def create_app():
         docs_url="/docs",
         redoc_url="/redoc",
     )
+
+    resource = Resource.create(attributes={"service.name": settings.app_name})
+    tracer = TracerProvider(resource=resource)
+    trace.set_tracer_provider(tracer)
+    tracer.add_span_processor(BatchSpanProcessor(JaegerExporter(agent_host_name=settings.host_jaeger,
+                                                                agent_port=settings.port_jaeger, )))   
+    
+    LoggingInstrumentor().instrument(set_logging_format=True)
+    FastAPIInstrumentor.instrument_app(app, tracer_provider=tracer) 
+    RedisInstrumentor().instrument()
+    #AioPikaInstrumentor().instrument()
+    SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine)
 
     async def on_startup() -> None:
         redis = aioredis.from_url(settings.redis_url,
