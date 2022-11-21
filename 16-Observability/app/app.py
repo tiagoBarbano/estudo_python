@@ -11,7 +11,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry import trace
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor, Span
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 #from opentelemetry.instrumentation.aio_pika import AioPikaInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
@@ -32,6 +32,18 @@ def create_app():
         redoc_url="/redoc",
     )
 
+    def server_request_hook(span: Span, scope: dict):
+        if span and span.is_recording():
+            span.set_attribute("Dados Scope 1", str(scope))
+
+    def client_request_hook(span: Span, scope: dict):
+        if span and span.is_recording():
+            span.set_attribute("Dados Scope 2", str(scope))
+
+    def client_response_hook(span: Span, message: dict):
+        if span and span.is_recording():
+            span.set_attribute("Dados Message", str(message))   
+        
     resource = Resource.create(attributes={"service.name": settings.app_name})
     tracer = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer)
@@ -39,10 +51,15 @@ def create_app():
                                                                 agent_port=settings.port_jaeger, )))   
     
     LoggingInstrumentor().instrument(set_logging_format=True)
-    FastAPIInstrumentor.instrument_app(app, tracer_provider=tracer) 
     RedisInstrumentor().instrument()
     #AioPikaInstrumentor().instrument()
     SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine)
+
+    FastAPIInstrumentor.instrument_app(app, 
+                                       tracer_provider=tracer, 
+                                       server_request_hook=server_request_hook,
+                                       client_request_hook=client_request_hook,
+                                       client_response_hook=client_response_hook) 
 
     async def on_startup() -> None:
         redis = aioredis.from_url(settings.redis_url,
