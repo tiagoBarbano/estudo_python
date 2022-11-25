@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  integracao-cache:
+    image: tiagobarbano/integracaocache:0.0.1
+    volumes:
+      - .:/usr/app
+    ports:
+      - 8000:8000
+    environment: 
+      ASYNCPG_URL: "postgresql+asyncpg://bwcelvdd:uwjUQ68ABrTdaqwVLXpOtgDHxDNWvPGd@kesavan.db.elephantsql.com/bwcelvdd"
+      REDIS_URL: "redis://default:rvQRG3d1KsGElUhGgxanebrx1soeYUfm@redis-18027.c98.us-east-1-4.ec2.cloud.redislabs.com:18027/0"
+
