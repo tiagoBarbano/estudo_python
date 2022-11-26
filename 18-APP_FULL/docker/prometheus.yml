@@ -1,0 +1,24 @@
+
+# my global config
+global:
+  scrape_interval: 10s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: "app"
+
+scrape_configs:
+  # - job_name: 'users'
+  #   static_configs:
+  #     - targets: ['host.docker.internal:8000']
+  - job_name: 'app01'
+    dns_sd_configs:
+      - names: ["app01"]
+        port: 8000
+        type: A
+        refresh_interval: 5s
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['host.docker.internal:16686']
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['proxy:8082']            

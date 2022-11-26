@@ -1,0 +1,219 @@
+version: '3.8'
+
+volumes:
+  grafana: {}
+  app01: {}
+
+services:
+  redis:
+    image: redis:alpine
+    command: redis-server --requirepass redis1234
+    ports:
+      - "6379:6379"
+    volumes:
+      - $PWD/redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - app
+            
+  app01:
+    build: ../
+    volumes:
+      - app01:/usr/app
+    expose:
+      - "8000"
+    environment: 
+      ASYNCPG_URL: "postgresql+asyncpg://bwcelvdd:uwjUQ68ABrTdaqwVLXpOtgDHxDNWvPGd@kesavan.db.elephantsql.com/bwcelvdd"
+      REDIS_URL: "redis://default:redis1234@redis:6379/0"
+      HOST_JAEGER: "jaeger-all-in-one"
+      PORT_JAEGER: 6831
+      URL_LOKI: "http://loki:3100/loki/api/v1/push"
+      APP_NAME: "APP_USERS"
+      URL_TESTE: "http://app02:8000/v1/user/"
+    depends_on: 
+      - loki
+      - promtail
+      - prometheus
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app01.rule=Host(`app01.localhost`)"
+      - "traefik.http.services.app01.loadbalancer.server.port=8000"
+    restart: always
+    networks:
+      - app
+    deploy:
+      mode: replicated
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 250M
+        reservations:
+          cpus: '0.25'
+          memory: 150M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  app02:
+    build: 
+      context: ../
+      dockerfile: Dockerfile_app02
+    volumes:
+      - app01:/usr/app
+    expose:
+      - "8000"
+    environment: 
+      ASYNCPG_URL: "postgresql+asyncpg://bwcelvdd:uwjUQ68ABrTdaqwVLXpOtgDHxDNWvPGd@kesavan.db.elephantsql.com/bwcelvdd"
+      REDIS_URL: "redis://default:redis1234@redis:6379/0"
+      HOST_JAEGER: "jaeger-all-in-one"
+      PORT_JAEGER: 6831
+      URL_LOKI: "http://loki:3100/loki/api/v1/push"
+      APP_NAME: "APP_USERS"
+      URL_TESTE: "http://app01:8000/v1/user/"
+    depends_on: 
+      - loki
+      - promtail
+      - prometheus
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app02.rule=Host(`app02.localhost`)"
+      - "traefik.http.services.app02.loadbalancer.server.port=8000"
+    restart: always
+    networks:
+      - app
+    deploy:
+      mode: replicated
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 250M
+        reservations:
+          cpus: '0.25'
+          memory: 150M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s         
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    depends_on:
+      - prometheus      
+    networks:
+      - app
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - 3100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - app
+
+  promtail:
+    image:  grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - ./config/promtail.yaml:/etc/promtail/docker-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/docker-config.yaml
+    depends_on:
+      - loki
+    networks:
+      - app
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app        
+
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one  
+    ports:
+      - "6831:6831/udp"      
+      - "16686:16686"
+      - "14268"
+      - "14250"
+    networks:
+      - app
+
+  proxy:
+    image: traefik:v2.8
+    command: 
+      - '--api.insecure=true' 
+      - '--providers.docker'
+      - '--providers.docker.endpoint=unix:///var/run/docker.sock'
+      - '--providers.docker.watch=true'
+      - '--providers.docker.exposedbydefault=true'
+      - '--log.level=DEBUG'
+      - '--entrypoints.web.address=:80'
+      - '--accesslog=true'
+      - '--tracing.serviceName=traefik'
+      - '--tracing.spanNameLimit=250'
+      - '--tracing.jaeger=true'
+      - '--tracing.jaeger.samplingServerURL=http://jaeger-all-in-one:5778/sampling'
+      - '--tracing.jaeger.samplingType=const'
+      - '--tracing.jaeger.samplingParam=1.0'
+      - '--tracing.jaeger.localAgentHostPort=jaeger-all-in-one:6831'
+      - '--tracing.jaeger.gen128Bit=true'
+      - '--tracing.jaeger.propagation=jaeger'
+      - '--tracing.jaeger.traceContextHeaderName=uber-trace-id'
+      - '--tracing.jaeger.collector.endpoint=http://jaeger-all-in-one:14268/api/traces?format=jaeger.thrift'
+      - '--metrics.prometheus=true'
+      - '--metrics.prometheus.addEntryPointsLabels=true'
+      - '--metrics.prometheus.addrouterslabels=true'
+      - '--metrics.prometheus.addServicesLabels=true'
+      - '--entryPoints.metrics.address=:8082'
+      - '--metrics.prometheus.entryPoint=metrics'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - '80:80'
+      - '8080:8080'
+    networks:
+      - app  
+    deploy:
+      restart_policy:
+        #condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        delay: 10s
+        order: start-first
+        parallelism: 1
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+    logging:
+      driver: json-file
+      options:
+        'max-size': '10m'
+        'max-file': '5'
+
+networks:
+  app:
+    name: app
