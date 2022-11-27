@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     url_loki: str
     app_name: str
     url_teste: str
+    app_url: str
+    pyctuator_endpoint_url: str
+    registration_url: str
 
     class Config:
         env_file = ".env"

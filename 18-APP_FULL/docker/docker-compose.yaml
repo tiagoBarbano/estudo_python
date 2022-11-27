@@ -1,7 +1,8 @@
 version: '3.8'
 
 volumes:
-  grafana: {}
+  grafana_data: {}
+  redis_data: {}
   app01: {}
 
 services:
@@ -11,8 +12,9 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - $PWD/redis-data:/var/lib/redis
-      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+      - redis_data:/data
+      # - $PWD/redis-data:/var/lib/redis
+      # - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - app
             
@@ -28,13 +30,17 @@ services:
       HOST_JAEGER: "jaeger-all-in-one"
       PORT_JAEGER: 6831
       URL_LOKI: "http://loki:3100/loki/api/v1/push"
-      APP_NAME: "APP_USERS"
+      APP_NAME: "APP_USERS_01"
       URL_TESTE: "http://app02:8000/v1/user/"
+      APP_URL: "http://app01:8000/docs"
+      PYCTUATOR_ENDPOINT_URL: "http://app01:8000/pyctuator"
+      REGISTRATION_URL: "http://spring-admin:8080/instances"
     depends_on: 
       - loki
       - promtail
       - prometheus
       - proxy
+      - spring-admin
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app01.rule=Host(`app01.localhost`)"
@@ -72,13 +78,17 @@ services:
       HOST_JAEGER: "jaeger-all-in-one"
       PORT_JAEGER: 6831
       URL_LOKI: "http://loki:3100/loki/api/v1/push"
-      APP_NAME: "APP_USERS"
+      APP_NAME: "APP_USERS_02"
       URL_TESTE: "http://app01:8000/v1/user/"
+      APP_URL: "http://app02:8000/docs"
+      PYCTUATOR_ENDPOINT_URL: "http://app02:8000/pyctuator"
+      REGISTRATION_URL: "http://spring-admin:8080/instances"      
     depends_on: 
       - loki
       - promtail
       - prometheus
       - proxy
+      - spring-admin
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app02.rule=Host(`app02.localhost`)"
@@ -107,7 +117,9 @@ services:
     ports:
       - 3000:3000
     volumes:
+      - grafana_data:/var/lib/grafana
       - ./config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
@@ -192,7 +204,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - '80:80'
-      - '8080:8080'
+      - '8081:8080'
     networks:
       - app  
     deploy:
@@ -213,6 +225,19 @@ services:
       options:
         'max-size': '10m'
         'max-file': '5'
+        
+  spring-admin:
+    image: michayaak/spring-boot-admin:2.2.3-1
+    ports:    
+      - '8080:8080'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spring.rule=Host(`spring.localhost`)"
+      - "traefik.http.services.spring.loadbalancer.server.port=8080"
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"      
+    networks:
+      - app
 
 networks:
   app:

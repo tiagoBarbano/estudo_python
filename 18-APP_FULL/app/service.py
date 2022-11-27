@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, HTTPException, status, Depends, Request, Response, Header
+from fastapi import APIRouter, Body, HTTPException, status, Depends, Request, Response
 from app.schema import UserSchema, UserSchemaUpdate
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,21 +16,19 @@ router = APIRouter()
 async def get_users_teste(request: Request,
                           response: Response):
     my_uuid = uuid.uuid4()
-    
+
     try:
         logger.info("REALIZAR CONSULTA DE TODOS OS USUARIOS", 
                     extra={"tags": {"uuid": str(my_uuid),
                                     "service": "get_users_default"},})
-        #trace_configs=[create_trace_config()]
-        async with aiohttp.ClientSession() as session:
+        #
+        async with aiohttp.ClientSession(trace_configs=[create_trace_config()]) as session:
             async with session.get(Settings().url_teste, ssl=False) as response:
                 if response.status != 200:
                     return -1 
                 resposta = await response.json()
                 
-        logger.info("TERMINO CONSULTA DE TODOS OS USUARIOS", 
-                    extra={"tags": {"uuid": str(my_uuid),
-                                    "service": "get_users_default"},})
+        logger.info("TERMINO CONSULTA DE TODOS OS USUARIOS")
         return resposta
     except HTTPException as ex:
         logger.exception("ERRO AO BUSCAR OS USUÁRIOS")

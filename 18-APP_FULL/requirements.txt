@@ -1,4 +1,4 @@
-fastapi[all]==0.73.0
+fastapi[all]==0.83.0
 uvicorn
 gunicorn
 pydantic
@@ -19,3 +19,4 @@ opentelemetry-api==1.13.0
 opentelemetry-sdk==1.13.0
 opentelemetry-exporter-jaeger-thrift==1.13.0
 aiohttp
+pyctuator==1.0.1

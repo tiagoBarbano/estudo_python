@@ -17,6 +17,7 @@ from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
+from pyctuator.pyctuator import Pyctuator
 from app.database import engine
 
 
@@ -70,6 +71,14 @@ def create_app():
         
         Instrumentator().instrument(app).expose(app)
 
+    Pyctuator(
+    app,
+    "FastAPI Pyctuator",
+    app_url=settings.app_url,
+    pyctuator_endpoint_url=settings.pyctuator_endpoint_url,
+    registration_url=settings.registration_url
+)
+    
     app.include_router(service.router, prefix="/v1/user", tags=["Users"])
     app.add_event_handler("startup", on_startup)
 
