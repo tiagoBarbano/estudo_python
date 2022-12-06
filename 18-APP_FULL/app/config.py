@@ -1,13 +1,13 @@
 import logging, logging_loki
-from pydantic import BaseSettings
+from pydantic import BaseSettings, RedisDsn, PostgresDsn
 from functools import lru_cache
 from fastapi_cache import FastAPICache
 from fastapi import Request, Response
 
 
 class Settings(BaseSettings):
-    asyncpg_url: str
-    redis_url: str
+    asyncpg_url: PostgresDsn = 'postgres://user:pass@localhost:5432/foobar'
+    redis_url: RedisDsn
     host_jaeger: str
     port_jaeger: int
     url_loki: str
