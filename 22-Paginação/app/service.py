@@ -1,27 +1,65 @@
 from fastapi import APIRouter, Body, HTTPException, status, Depends
-from app.schema import UserSchema, UserSchemaUpdate
+from app.schema import UserSchema, UserSchemaUpdate, ResponseSchema
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.model import UserModel
-from sqlalchemy import update, delete
+from sqlalchemy import update, delete, func
 from sqlalchemy.future import select
-# from fastapi_pagination.ext.sqlalchemy_future import paginate
-# from fastapi_pagination import Page, paginate, LimitOffsetPage
+from fastapi_pagination.ext.sqlalchemy_future import paginate
+from fastapi_pagination import Page, paginate, LimitOffsetPage, Params
+import asyncio
 
 router = APIRouter()
 
 
-#@router.get("/", status_code=status.HTTP_200_OK, response_model=Page[UserSchema])
-#@router.get("/limit-offset", response_model=LimitOffsetPage[UserSchema])
-@router.get("/", status_code=status.HTTP_200_OK, response_model=list[UserSchema])
-async def get_users_default(db: AsyncSession = Depends(get_db)):
-    #return await paginate(db, select(UserModel))
+@router.get("/na-api", status_code=status.HTTP_200_OK, response_model=Page[UserSchema])
+async def get_users_default(db: AsyncSession = Depends(get_db), params: Params = Depends()):
     async with db as session:
         query = select(UserModel)
         users = await session.execute(query)
         users = users.scalars().all()
+                                
+        return paginate(users, params)
 
-        return users
+@router.get("/no-banco", status_code=status.HTTP_200_OK, response_model=ResponseSchema)
+async def get_users_default(db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100):
+    async with db as session:
+        users = await busca_dados(skip, limit, session)
+        
+        total = await busca_count(session)
+                                
+        return ResponseSchema(user=users, 
+                              limit=limit, 
+                              skip=skip,
+                              total=total)
+        
+@router.get("/no-banco-async", status_code=status.HTTP_200_OK, response_model=ResponseSchema)
+async def get_users_default(db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100):
+    async with db as session:
+        
+        users = asyncio.create_task(busca_dados(skip, limit, session))
+        count = asyncio.create_task(busca_count(session))
+
+        get_users,\
+        total = await asyncio.gather(users,
+                                     count)
+       
+        return ResponseSchema(user=get_users, 
+                              limit=limit, 
+                              skip=skip,
+                              total=total)        
+
+async def busca_count(session):
+    q = select(func.count(UserModel.id))
+    q = await session.execute(q)
+    total = q.scalars().first()
+    return total
+
+async def busca_dados(skip, limit, session):
+    query = select(UserModel).order_by(UserModel.id).limit(limit).offset(skip)
+    users = await session.execute(query)
+    users = users.scalars().all()
+    return users
 
 
 @router.get("/{id}")
