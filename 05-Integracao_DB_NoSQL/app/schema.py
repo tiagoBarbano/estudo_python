@@ -18,12 +18,16 @@ class PyObjectId(ObjectId):
     def __modify_schema__(cls, field_schema):
         field_schema.update(type="string")
 
-
+class Detalhe(BaseModel):
+    id_produto: int  
+    nome_produto: str
+    price: float
 class UserSchema(BaseModel):
     id: PyObjectId | None = Field(default_factory=PyObjectId, alias="_id")
     nome: str = Field(...)
     idade: int = Field(...)
     email: EmailStr = Field(...)
+    detalhe: list[Detalhe] | None
 
     class Config:
         allow_population_by_field_name = True
