@@ -13,7 +13,7 @@ async def new_user(user: UserSchema = Body(...)):
     return await add_user(user)
 
 
-@router.get("/", response_model=list[UserSchema],
+@router.get("/", #), response_model=list[UserSchema],
             status_code=status.HTTP_200_OK)
 async def get_users():
     return await get_all_users()
