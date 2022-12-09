@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, HTTPException, status, Depends
-from app.schema import ApoliceSchema, ApoliceSchemaUpdate
+from app.schema import ApoliceSchemaUpdate, ApoliceSchema, ApoliceRequest
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repository import *
@@ -37,7 +37,7 @@ async def get_user_data(id: str, db: AsyncSession = Depends(get_db)):
 @router.post("/",
              status_code=status.HTTP_201_CREATED,
              response_model=ApoliceSchema)
-async def new_user(user: ApoliceSchemaUpdate = Body(...),
+async def new_user(user: ApoliceRequest = Body(...),
                    db: AsyncSession = Depends(get_db)):
     try:
         return await add_user(db, user)

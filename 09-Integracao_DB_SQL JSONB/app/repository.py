@@ -3,6 +3,7 @@ from app.model import UserModel
 from sqlalchemy import update, delete, text, func
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.encoders import jsonable_encoder
 
 
 async def get_all_users(db: AsyncSession):
@@ -15,7 +16,7 @@ async def get_all_users(db: AsyncSession):
 
 
 async def get_user_by_id(db: AsyncSession, id: int) -> dict:
-    query = select(UserModel).where(UserModel.id == id)
+    query = select(UserModel).where(UserModel.id == id).order_by(UserModel.id)
     users = await db.execute(query)
     user = users.scalar_one_or_none()
     await db.close()
@@ -24,22 +25,23 @@ async def get_user_by_id(db: AsyncSession, id: int) -> dict:
 
 async def get_user_by_id_product(db: AsyncSession, id_product: str) -> dict:
     query = text("""SELECT arr.item_object
-                    FROM apolice, jsonb_array_elements(apolice.detalhe) 
-                    with ordinality arr(item_object, position) 
-                    WHERE item_object->>'productid' = '{id_product}';""".format(id_product=id_product))
+                FROM apolice a, jsonb_array_elements(a.detalhe)
+                with ordinality arr(item_object, position) 
+                WHERE item_object->>'productid' = '{id_product}'
+                ORDER BY id;""".format(id_product=id_product))
     
     print(query)
     
     users = await db.execute(query)
-    user = users.scalars().fetchall()
+    user = users.scalars().all()
     return user
 
 
 async def add_user(db: AsyncSession,
-                   user_data: ApoliceSchemaUpdate) -> ApoliceSchema:
-    new_user = UserModel(nome=user_data.nome,
-                         idade=user_data.idade,
-                         email=user_data.email)
+                   req: ApoliceSchema) -> ApoliceSchema:
+    new_user = UserModel(id=req.id,
+                         create_time=req.create_time,
+                         detalhe=jsonable_encoder(req.detalhe))
     db.add(new_user)
     await db.commit()
     return new_user
