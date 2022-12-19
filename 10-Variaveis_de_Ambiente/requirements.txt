@@ -1,0 +1,9 @@
+uvicorn[standard]
+gunicorn
+fastapi[all]
+pydantic
+motor
+pymongo
+python-decouple
+pydantic
+pydantic[email]
