@@ -1,0 +1,9 @@
+uvicorn
+fastapi[all]
+pydantic[all]
+python-decouple
+asyncpg
+sqlalchemy
+fastapi_utils
+python-jose[cryptography]
+passlib[bcrypt]

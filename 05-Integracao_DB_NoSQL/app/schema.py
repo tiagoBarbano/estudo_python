@@ -1,6 +1,6 @@
 from enum import Enum
 from bson import ObjectId
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, Json
 
 
 class PyObjectId(ObjectId):
@@ -62,11 +62,10 @@ class UserSchema(BaseModel):
     id: PyObjectId | None = Field(default_factory=PyObjectId, alias="_id")
     nome: str = Field(...)
     idade: int = Field(...)
-    telefone: list[Telefone] = Field(...)
-    email: list[Email] = Field(...)
-    endereco: list[Endereco] = Field(...)
-    detalhe: list[Detalhe] | None
-
+    telefone: Json[list[Telefone]]
+    email: Json[list[Email]]
+    endereco: Json[list[Endereco]]
+    detalhe: Json[list[Detalhe]] | None
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -75,10 +74,10 @@ class UserSchema(BaseModel):
 class UpdateUserModel(BaseModel):
     nome: str | None
     idade: int | None
-    telefone: list[Telefone] | None
-    email: list[Email] | None
-    endereco: list[Endereco] | None
-    detalhe: list[Detalhe] | None
+    telefone: Json[list[Telefone]] | None
+    email: Json[list[Email]] | None
+    endereco: Json[list[Endereco]] | None
+    detalhe: Json[list[Detalhe]] | None
 
     class Config:
         arbitrary_types_allowed = True
