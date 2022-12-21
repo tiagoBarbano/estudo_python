@@ -6,3 +6,4 @@ asyncpg
 sqlalchemy
 fastapi-pagination
 pytest
+pytest-xdist
