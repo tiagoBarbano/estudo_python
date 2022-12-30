@@ -8,6 +8,8 @@ class UserSchema(BaseModel):
     idade: int = Field(...)
     email: EmailStr = Field(...)
     ativo: bool = Field(...)
+    cpf: int = Field(...)
+    sexo: str = Field(...)
     
     
     class Config:
@@ -15,6 +17,9 @@ class UserSchema(BaseModel):
         
 class UserSchemaUpdate(BaseModel):
     nome: str = Field(...)
+    sobrenome: str = Field(...)
     idade: int = Field(...)
-    email: EmailStr = Field(...)        
-
+    email: EmailStr = Field(...)
+    ativo: bool = Field(...)
+    cpf: int = Field(...)
+    sexo: str = Field(...)

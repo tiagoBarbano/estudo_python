@@ -12,3 +12,5 @@ class UserModel(Base):
     idade = Column(Integer)
     email = Column(String)
     ativo = Column(Boolean)
+    cpf = Column(Integer)
+    sexo = Column(String)

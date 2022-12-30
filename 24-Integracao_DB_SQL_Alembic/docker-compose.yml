@@ -1,0 +1,60 @@
+version: '3.5'
+
+services:
+  crud_alembic:
+    container_name: crud_alembic
+    build: ./
+    volumes:
+      - .:/usr/app
+    ports:
+      - 8000:8000
+    environment: 
+      - ASYNCPG_URL=postgresql+asyncpg://postgres:changeme@postgres_container:5432/postgres
+    depends_on: 
+      - postgres
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 400M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s       
+
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+  
+  # pgadmin:
+  #   container_name: pgadmin_container
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   volumes:
+  #      - pgadmin:/var/lib/pgadmin
+  
+  #   ports:
+  #     - "${PGADMIN_PORT:-5050}:80"
+  #   restart: unless-stopped
+
+volumes:
+    postgres:
+    pgadmin:

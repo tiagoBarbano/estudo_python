@@ -26,7 +26,7 @@ async def get_user_data(id: int, db: AsyncSession = Depends(get_db)):
 @router.post("/",
              status_code=status.HTTP_201_CREATED,
              response_model=UserSchema)
-async def new_user(user: UserSchemaUpdate = Body(...),
+async def new_user(user: UserSchema = Body(...),
                    db: AsyncSession = Depends(get_db)):
     try:
         return await add_user(db, user)
