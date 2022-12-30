@@ -2,19 +2,20 @@ version: '3.5'
 
 services:
   crud_alembic:
-    container_name: crud_alembic
     build: ./
     volumes:
       - .:/usr/app
-    ports:
-      - 8000:8000
+    # ports:
+    #   - 8000:8000
+    expose:
+      - "8000"
     environment: 
       - ASYNCPG_URL=postgresql+asyncpg://postgres:changeme@postgres_container:5432/postgres
     depends_on: 
       - postgres
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       resources:
         limits:
           cpus: '0.50'
