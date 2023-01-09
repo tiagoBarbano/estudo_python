@@ -11,9 +11,7 @@ controller = Controller(router)
 
 @controller.resource()
 class UserController:
-    
-    db: AsyncSession = [Depends(get_db)]
-    
+
     def __init__(self, db: AsyncSession = Depends(get_db)) -> None:
         self.db = db
     
