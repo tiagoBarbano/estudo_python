@@ -1,0 +1,7 @@
+fastapi[all]
+uvicorn
+gunicorn
+pydantic
+asyncpg
+sqlalchemy
+fastapi-router-controller==0.5.0
