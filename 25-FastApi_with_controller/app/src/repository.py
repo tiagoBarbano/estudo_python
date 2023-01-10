@@ -7,18 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def get_all_users(db: AsyncSession):
     async with db as session:
-        query = select(UserModel)
-        users = await session.execute(query)
-        users = users.scalars().all()
-        await session.close()
-        return users
+        users = await session.execute(select(UserModel))
+        return users.scalars().all()
 
 
 async def get_user_by_id(db: AsyncSession, id: int) -> dict:
     query = select(UserModel).where(UserModel.id == id)
     users = await db.execute(query)
     user = users.scalar_one_or_none()
-    await db.close()
     return user
 
 

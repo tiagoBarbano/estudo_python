@@ -4,6 +4,7 @@ from .database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from .schema import *
 from .service import get_users_default, get_user_data, new_user, update_user_data, delete_user_data
+from fastapi.responses import UJSONResponse, ORJSONResponse
 
 router = APIRouter()
 controller = Controller(router)
@@ -15,11 +16,13 @@ class UserController:
     def __init__(self, db: AsyncSession = Depends(get_db)) -> None:
         self.db = db
     
-    @controller.route.get("/v1/user", status_code=status.HTTP_200_OK, response_model=list[UserSchema])
+    @controller.route.get("/v1/user", 
+                          status_code=status.HTTP_200_OK, 
+                          response_model=list[UserSchema],
+                          response_class=UJSONResponse)
     async def getAllUsers(self) -> list[UserSchema]:
         try:
-            users: UserSchema = await get_users_default(self.db)
-            
+            users = await get_users_default(self.db)
             return users
         except HTTPException:            
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
