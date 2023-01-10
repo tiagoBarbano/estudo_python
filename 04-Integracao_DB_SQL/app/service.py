@@ -3,12 +3,15 @@ from app.schema import UserSchema, UserSchemaUpdate
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repository import *
+from fastapi.responses import UJSONResponse
 
 
 router = APIRouter()
 
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=list[UserSchema])
+@router.get("/", status_code=status.HTTP_200_OK, 
+            response_model=list[UserSchema],
+            response_class=UJSONResponse)
 async def get_users_default(db: AsyncSession = Depends(get_db)):
     return await get_all_users(db)
 
