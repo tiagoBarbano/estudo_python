@@ -4,7 +4,12 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    asyncpg_url: str
+    user: str
+    database: str
+    host: str
+    password: str
+    port: int
+    
    
     class Config:
         env_file = ".env"

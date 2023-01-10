@@ -1,7 +1,5 @@
 from fastapi_router_controller import Controller
-from fastapi import Body, HTTPException, status, APIRouter, Depends
-from .database import get_db
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Body, HTTPException, status, APIRouter
 from .schema import *
 from .service import get_users_default, get_user_data, new_user, delete_user_data, update_user_data
 from fastapi.responses import ORJSONResponse

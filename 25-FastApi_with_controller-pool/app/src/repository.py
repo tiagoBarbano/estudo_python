@@ -1,18 +1,16 @@
 from .schema import UserSchema, UserSchemaUpdate
-from .model import UserModel
-from sqlalchemy import update, delete
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from .config import get_settings
 import asyncpg
 
+settings = get_settings()
 
 async def startup():
     global pool
-    pool = await asyncpg.create_pool(user='postgres',
-                                    database='postgres',
-                                    host='127.0.0.1',
-                                    password='changeme',
-                                    port=5432)
+    pool = await asyncpg.create_pool(user=settings.user,
+                                    database=settings.database,
+                                    host=settings.host,
+                                    password=settings.password,
+                                    port=settings.port)
     print("Conexao realizada", pool)
     
            

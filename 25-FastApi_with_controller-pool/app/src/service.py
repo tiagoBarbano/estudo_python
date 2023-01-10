@@ -1,5 +1,4 @@
 from .schema import UserSchema, UserSchemaUpdate
-from sqlalchemy.ext.asyncio import AsyncSession
 from .repository import *
 
 
