@@ -1,0 +1,1 @@
+Exemplo de chamadas Assincronas e em paralelo.
