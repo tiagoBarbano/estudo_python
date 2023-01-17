@@ -22,7 +22,7 @@ async def calculo3():
 
 app = FastAPI()
 
-#Busca um item através do ID
+#Busca de forma async sequencial
 @app.get("/calc_async")
 async def read_item():
     c1 = await calculo1()
@@ -32,7 +32,7 @@ async def read_item():
     return c1 + c2 + c3
 
 
-#Busca um item através do ID
+#Busca de forma async paralelo
 @app.get("/calc_asyncio")
 async def read_item():
     c1, c2, c3 = await asyncio.gather(calculo1(), 
