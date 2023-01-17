@@ -6,11 +6,11 @@ settings = get_settings()
 
 async def startup():
     global pool
-    pool = await asyncpg.create_pool(user=settings.user,
-                                    database=settings.database,
-                                    host=settings.host,
-                                    password=settings.password,
-                                    port=settings.port)
+    pool = await asyncpg.create_pool(database=settings.database_db,
+                                    host=settings.host_db,
+                                    password=settings.password_db,
+                                    user=settings.user_db,
+                                    port=settings.port_db)
     print("Conexao realizada", pool)
     
            

@@ -4,11 +4,11 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    user: str
-    database: str
-    host: str
-    password: str
-    port: int
+    user_db: str
+    database_db: str
+    host_db: str
+    password_db: str
+    port_db: int
     
    
     class Config:

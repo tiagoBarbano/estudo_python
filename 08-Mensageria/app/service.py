@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter
-from publish_rabbitmq import publish_message
+from .publish_rabbitmq import publish_message
 
 
 router = APIRouter()

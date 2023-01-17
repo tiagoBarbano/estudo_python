@@ -2,7 +2,6 @@ import logging
 from fastapi import FastAPI
 from aio_pika import connect as pika_connect, IncomingMessage, ExchangeType
 
-
 logger = logging.getLogger('uvicorn')
 
 async def on_message(message: IncomingMessage):
@@ -14,12 +13,12 @@ async def consume(app: FastAPI):
 
 async def install(app: FastAPI):
     # Perform connection
-    connection = await pika_connect("amqp://guest:guest@localhost/")
+    connection = await pika_connect("amqps://gjnvdcak:vmtBLN9uBEWxT2DZmexo6CxTiz8pnc-L@jackal.rmq.cloudamqp.com/gjnvdcak")
     app.state.rabbit_connection = connection
 
     # Creating a channel
     channel = await connection.channel()
-    await channel.set_qos(prefetch_count=1)
+    await channel.set_qos(prefetch_count=250)
     app.state.rabbit_channel = channel
 
     exchange = await channel.declare_exchange("teste", ExchangeType.TOPIC, durable=True)

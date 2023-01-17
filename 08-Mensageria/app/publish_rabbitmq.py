@@ -9,7 +9,7 @@ logger = logging.getLogger('uvicorn')
 
 async def publish_message(msg: IncomingMessage = Body(...)):
     try:
-        connection = await pika_connect("amqp://guest:guest@localhost/")
+        connection = await pika_connect("amqps://gjnvdcak:vmtBLN9uBEWxT2DZmexo6CxTiz8pnc-L@jackal.rmq.cloudamqp.com/gjnvdcak")
         async with connection:
             channel = await connection.channel()
             queue = await channel.declare_queue("teste", durable=True)

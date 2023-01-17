@@ -1,7 +1,7 @@
 from typing import Any
-from app.src.controllers import UserController
+from app.api.controllers import UserController
 from fastapi import FastAPI
-from app.src.repository import startup
+from app.api.repository import startup
 
 def create_app():
     app: Any = FastAPI(

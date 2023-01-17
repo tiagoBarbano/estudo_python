@@ -1,6 +1,7 @@
+import asyncio
 from typing import Any
 from fastapi import FastAPI
-import service, consumer_rabbitmq, asyncio
+from . import hello, consumer_rabbitmq, service
 
 
 def create_app():
@@ -13,14 +14,15 @@ def create_app():
             redoc_url="/redoc"
           )
 
-    #@app.on_event("startup")
     async def rabbitmq_startup():
         await consumer_rabbitmq.install(app)
         asyncio.create_task(consumer_rabbitmq.consume(app))
         print('RabbitMQ Habilitado - Escutando Fila')
+        await hello.teste()
 
-    app.include_router(service.router, prefix="/v1", tags=["teste"])
     app.add_event_handler("startup", rabbitmq_startup)
-
+    app.include_router(service.router, prefix="/v1", tags=["teste"])
+    app.include_router(hello.router, prefix="/v1", tags=["teste"])
+    
     return app
     
