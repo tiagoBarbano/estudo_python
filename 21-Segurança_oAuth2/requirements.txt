@@ -7,3 +7,5 @@ sqlalchemy
 fastapi_utils
 python-jose[cryptography]
 passlib[bcrypt]
+pytest
+pytest-xdist

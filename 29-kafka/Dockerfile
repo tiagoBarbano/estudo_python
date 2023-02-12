@@ -1,7 +1,5 @@
 FROM python:3.10.9-slim
 
-ENV TZ="Asia/Taipei"
-
 RUN mkdir src
 
 COPY requirements.txt src
