@@ -1,0 +1,8 @@
+-- Active: 1676159336194@@127.0.0.1@5432@postgres@public
+CREATE TABLE items(  
+    id int NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    num_item NUMERIC,
+    nome_item TEXT
+);
+COMMENT ON TABLE  IS '';
+COMMENT ON COLUMN .name IS '';
