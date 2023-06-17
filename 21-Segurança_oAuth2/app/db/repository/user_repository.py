@@ -1,10 +1,10 @@
 import datetime
 from app.schema.schema import User
 from app.db.model.model import UserModel
-from app.utils.database import async_session
-from sqlalchemy import update, delete, text
+from sqlalchemy import update, delete
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 
 # Retrieve all users present in the database
 async def get_all_users(db: AsyncSession):
@@ -21,36 +21,22 @@ async def get_user_by_id(db: AsyncSession, id: int) -> dict:
     return user
 
 # Retrieve a user with a matching ID
-async def get_user_by_name(username: str) -> dict:
-    async with async_session() as db:
-        #q = text(f"select * from user where username = '{username}'")
-        q = select(UserModel).where(UserModel.username == username) 
-        users = await db.execute(q)
-        user = users.scalar_one_or_none()
-        await db.close()
-        return user
+async def get_user_by_name(db: AsyncSession, username: str) -> dict:
+    q = select(UserModel).where(UserModel.username == username) 
+    users = await db.execute(q)
+    user = users.scalar_one_or_none()
+    return user
 
 # Add a new user into to the database
-async def add_user(user: User) -> User:
-    data_criacao = datetime.datetime.now()
-    new_user = UserModel(nome_user=user.nome_user,
-                              id_usuario=user.id_usuario,
-                              data_criacao=data_criacao)
-
-    async with async_session() as session:
-        session.add(new_user)
-        await session.commit()
-        await session.close()
-        
+async def add_user(db: AsyncSession, new_user: User) -> User:       
+    db.add(new_user)
     return new_user
 
 
 # Update a user with a matching ID
 async def update_user(db: AsyncSession, id: str, data: User):
     query = (update(UserModel).where(UserModel.id == id).values(data).execution_options(synchronize_session="fetch"))
-
     await db.execute(query)
-
     try:
         await db.commit()
     except Exception:

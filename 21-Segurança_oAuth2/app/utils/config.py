@@ -4,8 +4,6 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     asyncpg_url: str
-    secret_key: str
-    algorithm: str
     access_token_expire_minutes: int
 
     class Config:     
@@ -14,6 +12,7 @@ class Settings(BaseSettings):
 
 
 @lru_cache()
-def get_settings():
+def get_settings() -> Settings: 
     return Settings()
+
 

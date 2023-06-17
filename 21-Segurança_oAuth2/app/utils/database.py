@@ -11,7 +11,6 @@ set = get_settings()
 
 engine = create_async_engine(set.asyncpg_url, future=True, echo=False,)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-
 Base = declarative_base()
 
 # Dependency

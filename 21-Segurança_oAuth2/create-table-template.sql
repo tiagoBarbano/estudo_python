@@ -6,7 +6,6 @@ CREATE TABLE users(
     email TEXT,
     full_name TEXT,
     disabled BOOLEAN,
-    id_cadastro INTEGER,
     data_criacao Date
 );
 COMMENT ON TABLE  IS '';
