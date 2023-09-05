@@ -13,10 +13,10 @@ router = APIRouter()
 @router.get("/",
             status_code=status.HTTP_200_OK,
             response_model=list[UserSchema])
-@cache(expire=60,
-       coder=JsonCoder,
-       key_builder=key_all_users,
-       namespace="GetAllUsers")
+# @cache(expire=60,
+#        coder=JsonCoder,
+#        key_builder=key_all_users,
+#        namespace="GetAllUsers")
 async def get_users_default(db: AsyncSession = Depends(get_db)):
     try:
         logger.info("REALIZAR CONSULTA DE TODOS OS USUARIOS")
@@ -26,6 +26,8 @@ async def get_users_default(db: AsyncSession = Depends(get_db)):
         logger.exception("ERRO AO BUSCAR OS USUÁRIOS")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=ex.detail)
+    finally:
+        logger.info("TERMINO CONSULTA DE TODOS OS USUARIOS")
             
 
 @router.get("/{id}")

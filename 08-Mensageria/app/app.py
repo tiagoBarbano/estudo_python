@@ -2,6 +2,7 @@ import asyncio
 from typing import Any
 from fastapi import FastAPI
 from . import hello, consumer_rabbitmq, service
+from fastapi_restful.tasks import repeat_every
 
 
 def create_app():
@@ -14,11 +15,12 @@ def create_app():
             redoc_url="/redoc"
           )
 
+    # @repeat_every(seconds=10)  # 1 hour
     async def rabbitmq_startup():
-        await consumer_rabbitmq.install(app)
-        asyncio.create_task(consumer_rabbitmq.consume(app))
+        queue = await consumer_rabbitmq.install()
+        asyncio.create_task(consumer_rabbitmq.consume(queue))
         print('RabbitMQ Habilitado - Escutando Fila')
-        await hello.teste()
+
 
     app.add_event_handler("startup", rabbitmq_startup)
     app.include_router(service.router, prefix="/v1", tags=["teste"])

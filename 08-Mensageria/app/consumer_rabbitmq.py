@@ -1,6 +1,7 @@
 import logging
 from fastapi import FastAPI
-from aio_pika import connect as pika_connect, IncomingMessage, ExchangeType
+from aio_pika import connect_robust as pika_connect, IncomingMessage, ExchangeType
+import aio_pika
 
 logger = logging.getLogger('uvicorn')
 
@@ -8,24 +9,23 @@ async def on_message(message: IncomingMessage):
     async with message.process():
         logger.info("Mensagem lida da Fila %r" % (message.body.decode()))
 
-async def consume(app: FastAPI):
-    await app.state.rabbit_queue.consume(on_message)
+async def consume(queue):
+    await queue.consume(on_message)   
 
-async def install(app: FastAPI):
+async def install():
     # Perform connection
-    connection = await pika_connect("amqps://gjnvdcak:vmtBLN9uBEWxT2DZmexo6CxTiz8pnc-L@jackal.rmq.cloudamqp.com/gjnvdcak")
-    app.state.rabbit_connection = connection
+    connection = await pika_connect("amqp://guest:guest@localhost:5672/teste")
 
     # Creating a channel
     channel = await connection.channel()
-    await channel.set_qos(prefetch_count=250)
-    app.state.rabbit_channel = channel
+    await channel.set_qos(prefetch_count=1)
 
     exchange = await channel.declare_exchange("teste", ExchangeType.TOPIC, durable=True)
-    app.state.rabbit_exchange = exchange
 
     queue = await channel.declare_queue(name="teste", durable=True)
-    app.state.rabbit_queue = queue
 
     # Binding the queue to the exchange
     await queue.bind(exchange, routing_key='teste')
+    
+    return queue
+    

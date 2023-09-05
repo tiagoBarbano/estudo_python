@@ -1,9 +1,12 @@
-import datetime
 from app.schema.schema import User
 from app.db.model.model import UserModel
 from sqlalchemy import update, delete
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi_cache.decorator import cache
+from fastapi_cache.coder import JsonCoder
+from app.utils.config import key_user_by_name
+from fastapi.encoders import jsonable_encoder
 
 
 # Retrieve all users present in the database
@@ -20,12 +23,14 @@ async def get_user_by_id(db: AsyncSession, id: int) -> dict:
     user = users.scalar_one_or_none()
     return user
 
-# Retrieve a user with a matching ID
+@cache(expire=60,
+       coder=JsonCoder,
+       key_builder=key_user_by_name)
 async def get_user_by_name(db: AsyncSession, username: str) -> dict:
     q = select(UserModel).where(UserModel.username == username) 
     users = await db.execute(q)
     user = users.scalar_one_or_none()
-    return user
+    return jsonable_encoder(user)
 
 # Add a new user into to the database
 async def add_user(db: AsyncSession, new_user: User) -> User:       

@@ -4,9 +4,9 @@ from .schema import *
 from .service import get_users_default, get_user_data, new_user, delete_user_data, update_user_data
 from fastapi.responses import ORJSONResponse
 
+
 router = APIRouter()
 controller = Controller(router)
-
 
 @controller.resource()
 class UserController:

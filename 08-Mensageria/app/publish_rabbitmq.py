@@ -1,5 +1,5 @@
 import logging
-from aio_pika import IncomingMessage, Message, connect as pika_connect
+from aio_pika import IncomingMessage, Message, connect_robust as pika_connect
 from fastapi import Body, HTTPException
 
 
@@ -9,7 +9,7 @@ logger = logging.getLogger('uvicorn')
 
 async def publish_message(msg: IncomingMessage = Body(...)):
     try:
-        connection = await pika_connect("amqps://gjnvdcak:vmtBLN9uBEWxT2DZmexo6CxTiz8pnc-L@jackal.rmq.cloudamqp.com/gjnvdcak")
+        connection = await pika_connect("amqp://guest:guest@localhost:5672/teste")
         async with connection:
             channel = await connection.channel()
             queue = await channel.declare_queue("teste", durable=True)

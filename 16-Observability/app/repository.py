@@ -32,9 +32,8 @@ async def get_user_by_id(db: AsyncSession, id: int) -> dict:
 
 async def add_user(db: AsyncSession,
                    user_data: UserSchemaUpdate) -> UserSchema:
-    new_user = UserModel(nome=user_data.nome,
-                         idade=user_data.idade,
-                         email=user_data.email)
+    new_user = UserModel(nome_item=user_data.nome_item,
+                         num_item=user_data.num_item)
     db.add(new_user)
     await db.commit()
     return new_user

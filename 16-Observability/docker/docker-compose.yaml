@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   redis:
@@ -9,8 +9,8 @@ services:
     volumes:
       - $PWD/redis-data:/var/lib/redis
       - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      - app
+    # networks:
+    #   - app
             
   app01:
     build: ../
@@ -35,8 +35,8 @@ services:
       - "traefik.http.routers.app01.rule=Host(`app01.localhost`)"
       - "traefik.http.services.app01.loadbalancer.server.port=8000"
     restart: always
-    networks:
-      - app
+    # networks:
+    #   - app
     deploy:
       mode: replicated
       replicas: 5
@@ -63,7 +63,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
-    networks:
+    # networks:
       - app
 
   loki:
@@ -71,8 +71,8 @@ services:
     ports:
       - 3100:3100
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - app
+    # networks:
+      # - app
 
   promtail:
     image:  grafana/promtail:latest
@@ -84,8 +84,8 @@ services:
     command: -config.file=/etc/promtail/docker-config.yaml
     depends_on:
       - loki
-    networks:
-      - app
+    # networks:
+    #   - app
 
   prometheus:
     container_name: prometheus
@@ -96,8 +96,8 @@ services:
       - "9090:9090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    networks:
-      - app        
+    # networks:
+    #   - app        
 
   jaeger-all-in-one:
     image: jaegertracing/all-in-one  
@@ -106,8 +106,8 @@ services:
       - "16686:16686"
       - "14268"
       - "14250"
-    networks:
-      - app
+    # networks:
+    #   - app
 
   proxy:
     image: traefik:v2.8
@@ -137,29 +137,27 @@ services:
     ports:
       - '80:80'
       - '8080:8080'
-    networks:
-      - app  
+    # networks:
+    #   - app  
     deploy:
       restart_policy:
         #condition: any
         delay: 5s
         max_attempts: 3
         window: 120s
-      update_config:
-        delay: 10s
-        order: start-first
-        parallelism: 1
-      rollback_config:
-        parallelism: 0
-        order: stop-first
+      # update_config:
+      #   delay: 10s
+      #   order: start-first
+      #   parallelism: 1
+      # rollback_config:
+      #   parallelism: 0
+      #   order: stop-first
     logging:
       driver: json-file
       options:
         'max-size': '10m'
         'max-file': '5'
 
-
-
-networks:
-  app:
-    name: app
+# networks:
+#   app:
+#     name: app

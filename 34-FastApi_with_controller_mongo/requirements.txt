@@ -1,0 +1,10 @@
+fastapi[all]
+uvicorn
+gunicorn
+pydantic
+motor
+pymongo
+python-decouple
+fastapi-router-controller==0.5.0
+redis==4.3.3
+fastapi-cache2[redis]==0.1.8

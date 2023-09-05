@@ -10,7 +10,7 @@ from app.config import get_settings
 
 settings = get_settings()
 
-sync_engine = create_engine("postgresql://bwcelvdd:uwjUQ68ABrTdaqwVLXpOtgDHxDNWvPGd@kesavan.db.elephantsql.com/bwcelvdd")
+sync_engine = create_engine("postgresql://bwcelvdd:aXHIYRtgQxLWymfhRs1rdRlMAlsh-OPp@kesavan.db.elephantsql.com/bwcelvdd")
 
 engine = create_async_engine(settings.asyncpg_url, future=True, echo=False, )
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)

@@ -3,3 +3,4 @@ fastapi[all]
 pydantic
 aio-pika==8.2.4
 fastapi-restful
+requests

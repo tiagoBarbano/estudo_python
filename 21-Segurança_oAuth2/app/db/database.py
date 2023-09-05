@@ -9,7 +9,7 @@ from app.utils.config import get_settings
 
 set = get_settings()
 
-engine = create_async_engine(set.asyncpg_url, future=True, echo=False,)
+engine = create_async_engine(set.asyncpg_url, future=True, echo=False, pool_size=50, max_overflow=25)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 Base = declarative_base()
 
@@ -25,5 +25,8 @@ async def get_db() -> AsyncGenerator:
         except HTTPException as http_ex:
             await session.rollback()
             raise http_ex
+        except Exception as http_ex:
+            await session.rollback()
+            raise http_ex        
         finally:
             await session.close()

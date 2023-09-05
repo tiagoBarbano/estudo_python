@@ -9,3 +9,4 @@ fastapi-cache2[redis]==0.1.8
 fastapi-healthcheck==0.2.8
 psutil
 pyctuator
+psycopg2-binary

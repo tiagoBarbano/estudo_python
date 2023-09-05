@@ -4,3 +4,4 @@ gunicorn
 pydantic
 asyncpg
 fastapi-router-controller==0.5.0
+fastapi-limiter

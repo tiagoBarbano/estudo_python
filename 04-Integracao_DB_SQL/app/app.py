@@ -1,7 +1,7 @@
 from typing import Any
 from app import service
 from fastapi import FastAPI
-from fastapi_pagination import add_pagination
+# from fastapi_pagination import add_pagination
 
 def create_app():
     app: Any = FastAPI(
@@ -15,6 +15,6 @@ def create_app():
 
     app.include_router(service.router, prefix="/v1/user", tags=["Users"])
     
-    add_pagination(app)
+    # add_pagination(app)
     
     return app

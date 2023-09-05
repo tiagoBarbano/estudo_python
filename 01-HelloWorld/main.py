@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse, UJSONResponse, JSONResponse
+import uvicorn
 
 app = FastAPI()
 
@@ -21,3 +22,7 @@ def hello_world():
 @app.get("/hello-world-ujson")
 def hello_world():
     return UJSONResponse(content={"Hello": "World"}, status_code=200)
+
+
+if __name__ == "__main__":
+     uvicorn.run(app)

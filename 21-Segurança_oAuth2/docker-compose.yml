@@ -1,0 +1,26 @@
+version: '3.5'
+
+volumes:
+  postgres: {}
+
+services:
+  app:
+    build: .
+    ports:
+      - 8000:8000
+    env_file: 
+      - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped      

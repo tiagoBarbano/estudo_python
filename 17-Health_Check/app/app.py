@@ -36,9 +36,9 @@ def create_app():
         app,
         app_name=app.title,
         app_description=app.description,
-        app_url="http://host.docker.internal:8000",
-        pyctuator_endpoint_url="http://host.docker.internal:8000/pyctuator",
-        registration_url="http://localhost:8080/instances"
+        app_url="http://localhost:8000",
+        pyctuator_endpoint_url="http://localhost:8000/pyctuator",
+        registration_url="http://localhost:8180/instances"
     )
     
     r = Redis.from_url(settings.redis_url)

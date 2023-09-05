@@ -5,51 +5,51 @@ volumes:
   postgres: {}
 
 services:
-  app01:
-    build: ./
-    volumes:
-      - app01:/usr/app
-    # ports:
-    #   - "8000:8000"
-    expose:
-      - "8000"
-    environment: 
-      USER_DB: "postgres"
-      DATABASE_DB: "postgres"
-      HOST_DB: "postgres"
-      PASSWORD_DB: "changeme"
-      PORT_DB: 5432
-    depends_on: 
-      - postgres
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.app01.rule=Host(`app01.localhost`)"
-      - "traefik.http.services.app01.loadbalancer.server.port=8000"
-    restart: always
-    networks:
-      - app
-    deploy:
-      mode: replicated
-      replicas: 5
-      resources:
-        limits:
-          cpus: '1'
-          memory: 250M
-        reservations:
-          cpus: '1'
-          memory: 250M
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+  # app01:
+  #   build: ./
+  #   volumes:
+  #     - app01:/usr/app
+  #   # ports:
+  #   #   - "8000:8000"
+  #   expose:
+  #     - "8000"
+  #   environment: 
+  #     USER_DB: "postgres"
+  #     DATABASE_DB: "postgres"
+  #     HOST_DB: "postgres"
+  #     PASSWORD_DB: "changeme"
+  #     PORT_DB: 5432
+  #   depends_on: 
+  #     - postgres
+  #     - proxy
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.app01.rule=Host(`app01.localhost`)"
+  #     - "traefik.http.services.app01.loadbalancer.server.port=8000"
+  #   restart: always
+  #   networks:
+  #     - app
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 5
+  #     resources:
+  #       limits:
+  #         cpus: '1'
+  #         memory: 250M
+  #       reservations:
+  #         cpus: '1'
+  #         memory: 250M
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 3
+  #       window: 60s
 
   postgres:
     image: postgres
     environment:
-      # POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      # POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
       PGDATA: /data/postgres
     volumes:
        - postgres:/data/postgres

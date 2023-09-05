@@ -4,4 +4,4 @@ gunicorn
 pydantic
 asyncpg
 sqlalchemy
-fastapi-pagination
+# fastapi-pagination

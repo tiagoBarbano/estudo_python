@@ -11,3 +11,7 @@ pytest-xdist
 pyjwt[crypto]
 uvicorn
 python-multipart==0.0.6
+bcrypt==4.0.1
+gunicorn==20.1.0
+redis==4.3.3
+fastapi-cache2[redis]==0.1.8

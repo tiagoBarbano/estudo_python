@@ -3,6 +3,7 @@ from app.api.controllers import UserController
 from fastapi import FastAPI
 from app.api.repository import startup
 
+
 def create_app():
     app: Any = FastAPI(
         title="Estudo Python",
